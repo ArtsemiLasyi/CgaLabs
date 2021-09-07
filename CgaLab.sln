@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31624.102
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CgaLab.Presentation", "CgaLab.Presentation\CgaLab.Presentation.csproj", "{0EB4468A-D163-4AE0-B1A1-D31BF03F364D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CgaLab.Api", "CgaLab.Api\CgaLab.Api.csproj", "{49B1351D-7A2C-4DAD-9501-220D9782E4FD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0EB4468A-D163-4AE0-B1A1-D31BF03F364D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0EB4468A-D163-4AE0-B1A1-D31BF03F364D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0EB4468A-D163-4AE0-B1A1-D31BF03F364D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0EB4468A-D163-4AE0-B1A1-D31BF03F364D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49B1351D-7A2C-4DAD-9501-220D9782E4FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49B1351D-7A2C-4DAD-9501-220D9782E4FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49B1351D-7A2C-4DAD-9501-220D9782E4FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49B1351D-7A2C-4DAD-9501-220D9782E4FD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F1D00C19-8925-46DC-A1CD-AEAA05267F89}
+	EndGlobalSection
+EndGlobal
