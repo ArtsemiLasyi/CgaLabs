@@ -1,6 +1,7 @@
 ﻿namespace CgaLab.Api
 {
-    public class Class1
+    public class Tranformator
     {
+
     }
 }
