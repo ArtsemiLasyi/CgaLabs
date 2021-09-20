@@ -29,36 +29,54 @@ namespace CgaLab.Presentation
         /// </summary>
         private void InitializeComponent()
         {
-            this.pictureBox = new System.Windows.Forms.PictureBox();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
+            this.components = new System.ComponentModel.Container();
+            this.ModelPictureBox = new System.Windows.Forms.PictureBox();
+            this.ModelOpenDialog = new System.Windows.Forms.OpenFileDialog();
+            this.DrawTimer = new System.Windows.Forms.Timer(this.components);
+            ((System.ComponentModel.ISupportInitialize)(this.ModelPictureBox)).BeginInit();
             this.SuspendLayout();
             // 
-            // pictureBox
+            // ModelPictureBox
             // 
-            this.pictureBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.pictureBox.Location = new System.Drawing.Point(2, -1);
-            this.pictureBox.Name = "pictureBox";
-            this.pictureBox.Size = new System.Drawing.Size(125, 62);
-            this.pictureBox.TabIndex = 0;
-            this.pictureBox.TabStop = false;
+            this.ModelPictureBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.ModelPictureBox.Location = new System.Drawing.Point(-1, -1);
+            this.ModelPictureBox.Name = "ModelPictureBox";
+            this.ModelPictureBox.Size = new System.Drawing.Size(800, 447);
+            this.ModelPictureBox.TabIndex = 0;
+            this.ModelPictureBox.TabStop = false;
+            // 
+            // ModelOpenDialog
+            // 
+            this.ModelOpenDialog.Filter = "Obj files|*.obj";
+            // 
+            // DrawTimer
+            // 
+            this.DrawTimer.Interval = 20;
+            this.DrawTimer.Tick += new System.EventHandler(this.DrawTimer_Tick);
             // 
             // FormACG
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Controls.Add(this.pictureBox);
+            this.ClientSize = new System.Drawing.Size(1089, 490);
+            this.Controls.Add(this.ModelPictureBox);
             this.Name = "FormACG";
             this.Text = "ACG";
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FormACG_KeyDown);
+            this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.FormACG_MouseDown);
+            this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.FormACG_MouseMove);
+            this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.FormACG_MouseUp);
             this.Resize += new System.EventHandler(this.FormACG_Resize);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ModelPictureBox)).EndInit();
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        private System.Windows.Forms.PictureBox pictureBox;
+        private System.Windows.Forms.PictureBox ModelPictureBox;
+        private System.Windows.Forms.OpenFileDialog ModelOpenDialog;
+        private System.Windows.Forms.Timer DrawTimer;
     }
 }
 

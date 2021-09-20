@@ -5,11 +5,11 @@ using System.Linq;
 using System;
 using System.Collections.Generic;
 
-namespace CgaLab.Api
+namespace CgaLab.Api.ObjFormat
 {
     public class ObjParser
     {
-        public async Task<DrawModel> ParseAsync(string path)
+        public async Task<ObjModel> ParseAsync(string path)
         {
             char[] separator = Environment.NewLine.ToCharArray();
 
@@ -19,9 +19,9 @@ namespace CgaLab.Api
             return GetModel(lines);
         }
 
-        public DrawModel GetModel(List<string> lines)
+        public ObjModel GetModel(List<string> lines)
         {
-            DrawModel model = new DrawModel();
+            ObjModel model = new ObjModel();
             lines.ForEach(
                 line =>
                 {
@@ -54,11 +54,11 @@ namespace CgaLab.Api
             return model;
         }
 
-        public Vector<Vector3> GetF(string line)
+        public List<Vector3> GetF(string line)
         {
             List<Vector3> values = new List<Vector3>();
             string[] vectors = line
-                .Remove(0, Constants.VertexTexture.Length + 1)
+                .Remove(0, Constants.Polygon.Length + 1)
                 .Trim()
                 .Split(" ");
             foreach (string vector in vectors)
@@ -98,7 +98,7 @@ namespace CgaLab.Api
                     }
                 }
             }
-            return new Vector<Vector3>(values.ToArray());
+            return values;
         }
 
         public Vector3 GetVt(string line)

@@ -1,4 +1,4 @@
-﻿namespace CgaLab.Api
+﻿namespace CgaLab.Api.ObjFormat
 {
     public static class Constants
     {
