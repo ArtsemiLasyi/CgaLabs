@@ -20,7 +20,7 @@ namespace CgaLab.Api.Bitmaps
 
         public ExtendedBitmap(int width, int height)
         {
-            Source = new(width, height, PixelFormat.Format32bppArgb);
+            Source = new Bitmap(width, height, PixelFormat.Format32bppArgb);
             Width = Source.Width;
             Height = Source.Height;
             BytesPerPixel = Source.PixelFormat == PixelFormat.Format32bppArgb ? 4 : 0;

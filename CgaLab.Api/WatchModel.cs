@@ -1,4 +1,5 @@
 ﻿using CgaLab.Api.ObjFormat;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 
@@ -6,7 +7,7 @@ namespace CgaLab.Api
 {
     public class WatchModel
     {
-        public List<Vector4> Vertices = new List<Vector4>();
+        public List<Vector4> Vertixes = new List<Vector4>();
         public List<Vector3> Textures = new List<Vector3>();
         public List<Vector3> Normals = new List<Vector3>();
         public List<List<Vector3>> Poligons = new List<List<Vector3>>();
@@ -21,10 +22,28 @@ namespace CgaLab.Api
             Position = Vector3.Zero;
             Rotation = Vector3.Zero;
 
-            Vertices = objModel.V;
+            Vertixes = objModel.V;
             Textures = objModel.Vt;
             Normals = objModel.Vn;
             Poligons = objModel.F;
+            int max = GetMax();
+            Scale = 500 / (max * 3);
+        }
+
+        public int GetMax()
+        {
+            int max = int.MinValue;
+            foreach (Vector4 vertex in Vertixes)
+            {
+                int max1 = (int)Math.Max(vertex.X, vertex.Y);
+                int max2 = (int)Math.Max(vertex.Z, vertex.W);
+                max1 = (int)Math.Max(max1, max2);
+                if (max1 > max)
+                {
+                    max = max1;
+                }
+            }
+            return max;
         }
     }
 }

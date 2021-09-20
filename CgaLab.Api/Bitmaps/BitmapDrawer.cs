@@ -2,6 +2,8 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Numerics;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace CgaLab.Api.Bitmaps
 {
@@ -31,11 +33,6 @@ namespace CgaLab.Api.Bitmaps
             bitmap = new ExtendedBitmap(width, height);
         }
 
-        public void SetActiveColor(Color color)
-        {
-            activeColor = color;
-        }
-
         public Bitmap GetBitmap(List<Vector3> windowVertices, WatchModel model)
         {
             int width = Width;
@@ -46,19 +43,24 @@ namespace CgaLab.Api.Bitmaps
 
             bitmap.LockBits();
 
-            foreach (List<Vector3> vertexIndexes in model.Poligons)
+            for (int i = 0; i < model.Poligons.Count; i++)
             {
-                for (int i = 0; i < vertexIndexes.Count - 1; i++)
-                {
-                    DrawLine(i, i + 1, vertexIndexes);
-                }
-
-                DrawLine(0, vertexIndexes.Count - 1, vertexIndexes);
+                DrawLines(model.Poligons[i]);
             }
 
             bitmap.UnlockBits();
 
             return bitmap.Source;
+        }
+
+        private void DrawLines(List<Vector3> vertexIndexes)
+        {
+            for (int i = 0; i < vertexIndexes.Count - 1; i++)
+            {
+                DrawLine(i, i + 1, vertexIndexes);
+            }
+
+            DrawLine(0, vertexIndexes.Count - 1, vertexIndexes);
         }
 
         private void DrawLine(int from, int to, List<Vector3> indexes)
@@ -76,7 +78,8 @@ namespace CgaLab.Api.Bitmaps
 
             foreach (Point point in drawnPoints)
             {
-                if (IsVisiblePoint(point))
+                if ((point.X > 0) && (point.X < bitmap.Width)
+                    && (point.Y > 0) && (point.Y < bitmap.Height))
                 {
                     bitmap[point.X, point.Y] = activeColor;
                 }
@@ -86,17 +89,6 @@ namespace CgaLab.Api.Bitmaps
         private Point GetPoint(Vector3 vector)
         {
             return new Point((int)vector.X, (int)vector.Y);
-        }
-
-        private bool IsVisiblePoint(Point point)
-        {
-            return ((point.X > 0) && (point.X < bitmap.Width)
-               && (point.Y > 0) && (point.Y < bitmap.Height));
-        }
-
-        public void Clear()
-        {
-            bitmap = new ExtendedBitmap(bitmap.Width, bitmap.Height);
         }
     }
 }

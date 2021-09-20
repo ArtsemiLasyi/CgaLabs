@@ -83,20 +83,13 @@ namespace CgaLab.Presentation
 
         private void ModelPictureBox_MouseDown(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Left)
-            {
-                mouseDown = true;
-                mousePosition.X = e.X;
-                mousePosition.Y = e.Y;
-            }
+            mouseDown = true;
+            SaveMousePosition(e);
         }
 
         private void ModelPictureBox_MouseUp(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Left)
-            {
-                mouseDown = false;
-            }
+            mouseDown = false;
         }
 
         private void ModelPictureBox_MouseMove(object sender, MouseEventArgs e)
@@ -105,12 +98,17 @@ namespace CgaLab.Presentation
             {
                 int xOffset = e.X - mousePosition.X;
                 int yOffset = mousePosition.Y - e.Y;
-                mousePosition.X = e.X;
-                mousePosition.Y = e.Y;
+				SaveMousePosition(e);
 
                 manipulator.RotateY(xOffset);
                 manipulator.RotateX(yOffset);
             }
         }
+		
+		private void SaveMousePosition(MouseEventArgs e)
+		{
+			mousePosition.X = e.X;
+            mousePosition.Y = e.Y;
+		}	
     }
 }

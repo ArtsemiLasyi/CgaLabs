@@ -7,8 +7,9 @@ namespace CgaLab.Api.Bitmaps
 {
     public static class LineDrawer
     {
-        public static IEnumerable<Point> DrawLinePoints(Point point1, Point point2)
+        public static List<Point> DrawLinePoints(Point point1, Point point2)
         {
+            List<Point> points = new List<Point>();
             int deltaX, deltaY;
             int signX = 1, signY = 1;
 
@@ -28,7 +29,7 @@ namespace CgaLab.Api.Bitmaps
 
             while (point1.X != point2.X || point1.Y != point2.Y)
             {
-                yield return new Point(point1.X, point1.Y);
+                points.Add(new Point(point1.X, point1.Y));
 
                 int error2 = error * 2;
 
@@ -43,7 +44,8 @@ namespace CgaLab.Api.Bitmaps
                     point1.Y += signY;
                 }
             }
-            yield return new Point(point2.X, point2.Y);
+            points.Add(new Point(point2.X, point2.Y));
+            return points;
         }
     }
 }
