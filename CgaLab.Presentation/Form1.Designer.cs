@@ -44,6 +44,9 @@ namespace CgaLab.Presentation
             this.ModelPictureBox.Size = new System.Drawing.Size(800, 447);
             this.ModelPictureBox.TabIndex = 0;
             this.ModelPictureBox.TabStop = false;
+            this.ModelPictureBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.ModelPictureBox_MouseDown);
+            this.ModelPictureBox.MouseMove += new System.Windows.Forms.MouseEventHandler(this.ModelPictureBox_MouseMove);
+            this.ModelPictureBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.ModelPictureBox_MouseUp);
             // 
             // ModelOpenDialog
             // 
@@ -63,9 +66,6 @@ namespace CgaLab.Presentation
             this.Name = "FormACG";
             this.Text = "ACG";
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FormACG_KeyDown);
-            this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.FormACG_MouseDown);
-            this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.FormACG_MouseMove);
-            this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.FormACG_MouseUp);
             this.Resize += new System.EventHandler(this.FormACG_Resize);
             ((System.ComponentModel.ISupportInitialize)(this.ModelPictureBox)).EndInit();
             this.ResumeLayout(false);

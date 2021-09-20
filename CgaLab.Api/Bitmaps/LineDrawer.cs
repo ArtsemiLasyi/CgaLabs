@@ -24,8 +24,6 @@ namespace CgaLab.Api.Bitmaps
                 signY = -1;
             }
 
-            yield return new Point(point2.X, point2.Y);
-
             int error = deltaX - deltaY;
 
             while (point1.X != point2.X || point1.Y != point2.Y)
@@ -45,7 +43,7 @@ namespace CgaLab.Api.Bitmaps
                     point1.Y += signY;
                 }
             }
-            yield break;
+            yield return new Point(point2.X, point2.Y);
         }
     }
 }

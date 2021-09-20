@@ -7,6 +7,8 @@ namespace CgaLab.Api.Camera
     {
         public CameraModel Camera { get; private set; }
 
+        private readonly float sensitivity = 0.01f;
+
         public CameraManipulator()
         {
             Camera = new CameraModel(
@@ -15,6 +17,16 @@ namespace CgaLab.Api.Camera
                 new Vector3(0, 1, 0),
                 (float)Math.PI / 3
             ); 
+        }
+
+        public void RotateY(int xOffset)
+        {
+            Camera.Eye = Vector3.Transform(Camera.Eye, Matrix4x4.CreateRotationY(sensitivity * xOffset));
+        }
+
+        public void RotateX(int yOffset)
+        {
+            Camera.Eye = Vector3.Transform(Camera.Eye, Matrix4x4.CreateRotationX(sensitivity * yOffset));
         }
     }
 }

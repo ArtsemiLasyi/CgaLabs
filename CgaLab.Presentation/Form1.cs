@@ -23,6 +23,9 @@ namespace CgaLab.Presentation
         WatchModel model;
         List<Vector3> points;
 
+        private bool mouseDown = false;
+        private Point mousePosition = new Point(0, 0);
+
         public FormACG()
         {
             InitializeComponent();
@@ -72,26 +75,42 @@ namespace CgaLab.Presentation
             }
         }
 
-        private void FormACG_MouseDown(object sender, MouseEventArgs e)
-        {
-
-        }
-
-        private void FormACG_MouseUp(object sender, MouseEventArgs e)
-        {
-
-        }
-
-        private void FormACG_MouseMove(object sender, MouseEventArgs e)
-        {
-
-        }
-
         private void DrawTimer_Tick(object sender, EventArgs e)
         {
-            manipulator.Camera.Eye = Vector3.Transform(manipulator.Camera.Eye, Matrix4x4.CreateRotationY(0.10f));
             points = transformator.Transform(manipulator.Camera, model);
             ModelPictureBox.Image = bitmapDrawer.GetBitmap(points, model);
+        }
+
+        private void ModelPictureBox_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                mouseDown = true;
+                mousePosition.X = e.X;
+                mousePosition.Y = e.Y;
+            }
+        }
+
+        private void ModelPictureBox_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                mouseDown = false;
+            }
+        }
+
+        private void ModelPictureBox_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (mouseDown)
+            {
+                int xOffset = e.X - mousePosition.X;
+                int yOffset = mousePosition.Y - e.Y;
+                mousePosition.X = e.X;
+                mousePosition.Y = e.Y;
+
+                manipulator.RotateY(xOffset);
+                manipulator.RotateX(yOffset);
+            }
         }
     }
 }
