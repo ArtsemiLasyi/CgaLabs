@@ -1,7 +1,9 @@
 ﻿using CgaLab.Api.Camera;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Threading.Tasks;
 
 namespace CgaLab.Api
 {
@@ -18,10 +20,18 @@ namespace CgaLab.Api
 
         public List<Vector3> Transform(CameraModel camera, WatchModel model)
         {
+            //Мировые координаты
             Matrix4x4 worldMatrix = GetWorldSpace(model);
+
+            //Координаты наблюдателя
             Matrix4x4 viewMatrix = GetViewSpace(camera);
+
+            //Координаты проекции(перспектива)
             Matrix4x4 projectionMatrix = GetPerspectiveSpace(camera.Fov, Width, Height);
+
             Matrix4x4 transformMatrix = worldMatrix * viewMatrix * projectionMatrix;
+
+            //Координаты окна
             return GetWindowSpace(transformMatrix, model.Vertixes); 
         }
 
@@ -72,18 +82,24 @@ namespace CgaLab.Api
         private List<Vector3> GetWindowSpace(Matrix4x4 transformMatrix, List<Vector4> vertexes)
         {
             Vector3[] windowPoints = new Vector3[vertexes.Count];
+
+            //Координаты в соотв с шириной и высотой экрана
             Matrix4x4 viewPortMatrix = GetViewPortSpace(Width, Height);
-            for (int i = 0; i < vertexes.Count; i++)
-            {
-                Vector4 transformedPoint = Vector4.Transform(vertexes[i], transformMatrix);
-                transformedPoint /= transformedPoint.W;
-                Vector4 displayedPoint = Vector4.Transform(transformedPoint, viewPortMatrix);
-                windowPoints[i] = new Vector3(
-                    displayedPoint.X,
-                    displayedPoint.Y,
-                    displayedPoint.Z
-                );
-            }
+
+            Parallel.ForEach(Partitioner.Create(0, vertexes.Count), range => {
+                for (int i = range.Item1; i < range.Item2; i++)
+                {
+                    Vector4 transformedPoint = Vector4.Transform(vertexes[i], transformMatrix);
+                    transformedPoint /= transformedPoint.W;
+                    Vector4 displayedPoint = Vector4.Transform(transformedPoint, viewPortMatrix);
+                    windowPoints[i] = new Vector3(
+                        displayedPoint.X,
+                        displayedPoint.Y,
+                        displayedPoint.Z
+                    );
+                }
+            });
+            
             return windowPoints.ToList();
         }
     }

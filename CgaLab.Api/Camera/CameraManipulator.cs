@@ -21,12 +21,13 @@ namespace CgaLab.Api.Camera
 
         public void RotateY(int xOffset)
         {
-            Camera.Eye = Vector3.Transform(Camera.Eye, Matrix4x4.CreateRotationY(sensitivity * xOffset));
+            Camera.Eye = Vector3.Transform(Camera.Eye, Matrix4x4.CreateRotationY(sensitivity * -xOffset));
         }
 
         public void RotateX(int yOffset)
         {
             Camera.Eye = Vector3.Transform(Camera.Eye, Matrix4x4.CreateRotationX(sensitivity * yOffset));
+            Camera.Up = Vector3.Transform(Camera.Up, Matrix4x4.CreateRotationX(sensitivity * yOffset));
         }
     }
 }

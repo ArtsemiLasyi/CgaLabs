@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace CgaLab.Api.ObjFormat
 {
@@ -15,6 +16,7 @@ namespace CgaLab.Api.ObjFormat
 
             using StreamReader reader = new StreamReader(path);
             string text = await reader.ReadToEndAsync();
+
             List<string> lines = text.Split(separator).ToList();
             return GetModel(lines);
         }
@@ -54,6 +56,7 @@ namespace CgaLab.Api.ObjFormat
             return model;
         }
 
+        //Полигон
         public List<Vector3> GetF(string line)
         {
             List<Vector3> values = new List<Vector3>();
@@ -101,6 +104,7 @@ namespace CgaLab.Api.ObjFormat
             return values;
         }
 
+        //Текстура
         public Vector3 GetVt(string line)
         {
             string[] coordinates = line
@@ -110,26 +114,27 @@ namespace CgaLab.Api.ObjFormat
             if (coordinates.Length == 3)
             {
                 return new Vector3(
-                    float.Parse(coordinates[0]),
-                    float.Parse(coordinates[1]),
-                    float.Parse(coordinates[2])
+                    float.Parse(coordinates[0], CultureInfo.InvariantCulture.NumberFormat),
+                    float.Parse(coordinates[1], CultureInfo.InvariantCulture.NumberFormat),
+                    float.Parse(coordinates[2], CultureInfo.InvariantCulture.NumberFormat)
                 );
             }
             if (coordinates.Length == 2)
             {
                 return new Vector3(
-                    float.Parse(coordinates[0]),
-                    float.Parse(coordinates[1]),
+                    float.Parse(coordinates[0], CultureInfo.InvariantCulture.NumberFormat),
+                    float.Parse(coordinates[1], CultureInfo.InvariantCulture.NumberFormat),
                     1
                 );
             }
             return new Vector3(
-                float.Parse(coordinates[0]),
+                float.Parse(coordinates[0], CultureInfo.InvariantCulture.NumberFormat),
                 1,
                 1
             );
         }
 
+        //Вершина
         public Vector4 GetV(string line)
         {
             string[] coordinates = line
@@ -139,20 +144,21 @@ namespace CgaLab.Api.ObjFormat
             if (coordinates.Length == 4)
             {
                 return new Vector4(
-                    float.Parse(coordinates[0]),
-                    float.Parse(coordinates[1]),
-                    float.Parse(coordinates[2]),
-                    float.Parse(coordinates[3])
+                    float.Parse(coordinates[0], CultureInfo.InvariantCulture.NumberFormat),
+                    float.Parse(coordinates[1], CultureInfo.InvariantCulture.NumberFormat),
+                    float.Parse(coordinates[2], CultureInfo.InvariantCulture.NumberFormat),
+                    float.Parse(coordinates[3], CultureInfo.InvariantCulture.NumberFormat)
                 );
             }
             return new Vector4(
-                float.Parse(coordinates[0]),
-                float.Parse(coordinates[1]),
-                float.Parse(coordinates[2]),
+                float.Parse(coordinates[0], CultureInfo.InvariantCulture.NumberFormat),
+                float.Parse(coordinates[1], CultureInfo.InvariantCulture.NumberFormat),
+                float.Parse(coordinates[2], CultureInfo.InvariantCulture.NumberFormat),
                 1
             );
         }
 
+        //Нормаль
         public Vector3 GetVn(string line)
         {
             string[] coordinates = line
@@ -160,9 +166,9 @@ namespace CgaLab.Api.ObjFormat
                 .Trim()
                 .Split(" ");
             return new Vector3(
-                float.Parse(coordinates[0]),
-                float.Parse(coordinates[1]),
-                float.Parse(coordinates[2])
+                float.Parse(coordinates[0], CultureInfo.InvariantCulture.NumberFormat),
+                float.Parse(coordinates[1], CultureInfo.InvariantCulture.NumberFormat),
+                float.Parse(coordinates[2], CultureInfo.InvariantCulture.NumberFormat)
             );
         }
     }

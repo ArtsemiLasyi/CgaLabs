@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Numerics;
@@ -42,11 +43,13 @@ namespace CgaLab.Api.Bitmaps
             this.windowVertices = windowVertices;
 
             bitmap.LockBits();
-
-            for (int i = 0; i < model.Poligons.Count; i++)
-            {
-                DrawLines(model.Poligons[i]);
-            }
+            Parallel.ForEach(Partitioner.Create(0, model.Poligons.Count), range => {
+                for (int i = range.Item1; i < range.Item2; i++)
+                {
+                    DrawLines(model.Poligons[i]);
+                }
+            });
+          
 
             bitmap.UnlockBits();
 

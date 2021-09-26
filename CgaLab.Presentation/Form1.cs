@@ -100,8 +100,8 @@ namespace CgaLab.Presentation
                 int yOffset = mousePosition.Y - e.Y;
 				SaveMousePosition(e);
 
-                manipulator.RotateY(xOffset);
                 manipulator.RotateX(yOffset);
+                manipulator.RotateY(xOffset);
             }
         }
 		
