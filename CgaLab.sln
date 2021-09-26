@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.31624.102
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CgaLab.Presentation", "CgaLab.Presentation\CgaLab.Presentation.csproj", "{0EB4468A-D163-4AE0-B1A1-D31BF03F364D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{49B1351D-7A2C-4DAD-9501-220D9782E4FD} = {49B1351D-7A2C-4DAD-9501-220D9782E4FD}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CgaLab.Api", "CgaLab.Api\CgaLab.Api.csproj", "{49B1351D-7A2C-4DAD-9501-220D9782E4FD}"
 EndProject

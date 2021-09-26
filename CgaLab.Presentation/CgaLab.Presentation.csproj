@@ -6,4 +6,8 @@
     <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\CgaLab.Api\CgaLab.Api.csproj" />
+  </ItemGroup>
+
 </Project>
