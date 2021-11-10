@@ -1,16 +1,12 @@
 ﻿using CgaLab.Api;
 using CgaLab.Api.Bitmaps;
 using CgaLab.Api.Camera;
+using CgaLab.Api.Lighting;
 using CgaLab.Api.ObjFormat;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace CgaLab.Presentation
@@ -18,8 +14,9 @@ namespace CgaLab.Presentation
     public partial class FormACG : Form
     {
         MatrixTransformator transformator;
-        BitmapDrawer bitmapDrawer;
-        CameraManipulator manipulator;
+        PhongBitmapDrawer bitmapDrawer;
+        CameraManipulator cameraManipulator;
+        LightSourceManipulator lightManipulator;
         WatchModel model;
         List<Vector3> points;
 
@@ -30,9 +27,11 @@ namespace CgaLab.Presentation
         {
             InitializeComponent();
 
-            manipulator = new CameraManipulator();
+            cameraManipulator = new CameraManipulator();
+            lightManipulator = new LightSourceManipulator();
             transformator = new MatrixTransformator(Size.Width, Size.Height);
-            bitmapDrawer = new BitmapDrawer(Size.Width, Size.Height);
+            //bitmapDrawer = new BitmapDrawer(Size.Width, Size.Height);
+            bitmapDrawer = new PhongBitmapDrawer(Size.Width, Size.Height);
 
             InitPictureBox();
         }
@@ -53,10 +52,13 @@ namespace CgaLab.Presentation
             ModelPictureBox.Width = Size.Width;
             ModelPictureBox.Height = Size.Height;
 
-            transformator.Height = Size.Height;
-            transformator.Width = Size.Width;
+            if (transformator != null)
+            {
+                transformator.Height = Size.Height;
+                transformator.Width = Size.Width;
+            }
 
-            bitmapDrawer = new BitmapDrawer(Size.Width, Size.Height);
+            bitmapDrawer = new PhongBitmapDrawer(Size.Width, Size.Height);
         }
 
         private async void FormACG_KeyDown(object sender, KeyEventArgs e)
@@ -73,12 +75,42 @@ namespace CgaLab.Presentation
                 model = new WatchModel(objModel);
                 DrawTimer.Start();
             }
+
+            if (e.KeyCode == Keys.W)
+            {
+                lightManipulator.MoveFront();
+            }
+
+            if (e.KeyCode == Keys.S)
+            {
+                lightManipulator.MoveBack();
+            }
+
+            if (e.KeyCode == Keys.D)
+            {
+                lightManipulator.MoveRight();
+            }
+
+            if (e.KeyCode == Keys.A)
+            {
+                lightManipulator.MoveLeft();
+            }
+
+            if (e.KeyCode == Keys.Q)
+            {
+                lightManipulator.MoveUp();
+            }
+
+            if (e.KeyCode == Keys.E)
+            {
+                lightManipulator.MoveDown();
+            }
         }
 
         private void DrawTimer_Tick(object sender, EventArgs e)
         {
-            points = transformator.Transform(manipulator.Camera, model);
-            ModelPictureBox.Image = bitmapDrawer.GetBitmap(points, model);
+            points = transformator.Transform(cameraManipulator.Camera, model);
+            ModelPictureBox.Image = bitmapDrawer.GetBitmap(points, model, lightManipulator.LightSource, cameraManipulator.Camera.Eye);
         }
 
         private void ModelPictureBox_MouseDown(object sender, MouseEventArgs e)
@@ -100,8 +132,8 @@ namespace CgaLab.Presentation
                 int yOffset = mousePosition.Y - e.Y;
 				SaveMousePosition(e);
 
-                manipulator.RotateX(yOffset);
-                manipulator.RotateY(xOffset);
+                cameraManipulator.RotateX(yOffset);
+                cameraManipulator.RotateY(xOffset);
             }
         }
 		

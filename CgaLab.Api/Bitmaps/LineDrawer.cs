@@ -1,20 +1,43 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Numerics;
 
 namespace CgaLab.Api.Bitmaps
 {
     public static class LineDrawer
     {
-        public static List<Point> DrawLinePoints(Point point1, Point point2)
+        public static List<PixelInfo> DrawLinePoints(PixelInfo pixel1, PixelInfo pixel2)
         {
-            List<Point> points = new List<Point>();
+            List<PixelInfo> points = new List<PixelInfo>();
+            Vector3 point1 = pixel1.Point;
+            Vector3 point2 = pixel2.Point;
+            Vector3 normal1 = pixel1.Normal;
+            Vector4 world1 = pixel1.World;
             int deltaX, deltaY;
             int signX = 1, signY = 1;
+            float deltaZ;
+            Vector3 deltaN;
+            Vector4 deltaW;
 
-            deltaX = Math.Abs(point2.X - point1.X);
-            deltaY = Math.Abs(point2.Y - point1.Y);
+            deltaX = Math.Abs((int)point2.X - (int)point1.X);
+            deltaY = Math.Abs((int)point2.Y - (int)point1.Y);
+            deltaZ = point2.Z - point1.Z;
+            deltaN = pixel2.Normal - pixel1.Normal;
+            deltaW = pixel2.World - pixel1.World;
+
+
+            if (deltaX > deltaY)
+            {
+                deltaZ /= deltaX;
+                deltaN /= deltaX;
+                deltaW /= deltaX;
+            }
+            else
+            {
+                deltaZ /= deltaY;
+                deltaN /= deltaY;
+                deltaW /= deltaY;
+            }
 
             if (point1.X > point2.X)
             {
@@ -29,7 +52,12 @@ namespace CgaLab.Api.Bitmaps
 
             while (point1.X != point2.X || point1.Y != point2.Y)
             {
-                points.Add(new Point(point1.X, point1.Y));
+                points.Add(new PixelInfo()
+                {
+                    Point = new Vector3(point1.X, point1.Y, point1.Z),
+                    Normal = normal1,
+                    World= world1
+                });
 
                 int error2 = error * 2;
 
@@ -43,8 +71,19 @@ namespace CgaLab.Api.Bitmaps
                     error += deltaX;
                     point1.Y += signY;
                 }
+
+                point1.Z += deltaZ;
+                normal1 += deltaN;
+                world1 += deltaW;
             }
-            points.Add(new Point(point2.X, point2.Y));
+
+            points.Add(new PixelInfo()
+            {
+                Point = new Vector3(point1.X, point1.Y, point1.Z),
+                Normal = normal1,
+                World = world1
+            });
+
             return points;
         }
     }

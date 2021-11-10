@@ -32,14 +32,16 @@ namespace CgaLab.Api
             Matrix4x4 transformMatrix = worldMatrix * viewMatrix * projectionMatrix;
 
             //Координаты окна
-            return GetWindowSpace(transformMatrix, model.Vertixes); 
+            var vetixes = GetWindowSpace(transformMatrix, model.Vertixes);
+
+            return vetixes;
         }
 
         private Matrix4x4 GetWorldSpace(WatchModel model)
         {
-            return Matrix4x4.CreateScale(model.Scale)
-                * GetRotation(model.Rotation)
-                * GetTranslation(model.Position);
+            return GetTranslation(model.Position) 
+                * Matrix4x4.CreateScale(model.Scale)
+                * GetRotation(model.Rotation);
         }
 
         private Matrix4x4 GetTranslation(Vector3 vector)
