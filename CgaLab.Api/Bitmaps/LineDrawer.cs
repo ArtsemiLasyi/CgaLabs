@@ -6,22 +6,29 @@ namespace CgaLab.Api.Bitmaps
 {
     public static class LineDrawer
     {
-        public static List<PixelInfo> DrawLinePoints(PixelInfo pixel1, PixelInfo pixel2)
+        public static List<Pixel> DrawLinePoints(Pixel pixel1, Pixel pixel2)
         {
-            List<PixelInfo> points = new List<PixelInfo>();
+            List<Pixel> points = new List<Pixel>();
+
             Vector3 point1 = pixel1.Point;
             Vector3 point2 = pixel2.Point;
+            
             Vector3 normal1 = pixel1.Normal;
             Vector4 world1 = pixel1.World;
+            
             int deltaX, deltaY;
             int signX = 1, signY = 1;
+            
             float deltaZ;
+            
             Vector3 deltaN;
             Vector4 deltaW;
 
             deltaX = Math.Abs((int)point2.X - (int)point1.X);
             deltaY = Math.Abs((int)point2.Y - (int)point1.Y);
+            
             deltaZ = point2.Z - point1.Z;
+            
             deltaN = pixel2.Normal - pixel1.Normal;
             deltaW = pixel2.World - pixel1.World;
 
@@ -52,7 +59,7 @@ namespace CgaLab.Api.Bitmaps
 
             while (point1.X != point2.X || point1.Y != point2.Y)
             {
-                points.Add(new PixelInfo()
+                points.Add(new Pixel()
                 {
                     Point = new Vector3(point1.X, point1.Y, point1.Z),
                     Normal = normal1,
@@ -77,7 +84,7 @@ namespace CgaLab.Api.Bitmaps
                 world1 += deltaW;
             }
 
-            points.Add(new PixelInfo()
+            points.Add(new Pixel()
             {
                 Point = new Vector3(point1.X, point1.Y, point1.Z),
                 Normal = normal1,

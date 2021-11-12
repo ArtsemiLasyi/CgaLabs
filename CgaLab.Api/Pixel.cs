@@ -2,7 +2,7 @@
 
 namespace CgaLab.Api
 {
-    public struct PixelInfo
+    public struct Pixel
     {
         public Vector3 Normal;
         public Vector3 Point;

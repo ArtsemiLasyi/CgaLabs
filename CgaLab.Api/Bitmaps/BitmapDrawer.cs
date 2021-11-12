@@ -28,9 +28,9 @@ namespace CgaLab.Api.Bitmaps
             return result;
         }
 
-        protected void FindStartAndEndXByY(List<PixelInfo> sidesList, int y, out PixelInfo pixelFrom, out PixelInfo pixelTo)
+        protected void FindStartAndEndXByY(List<Pixel> sidesList, int y, out Pixel pixelFrom, out Pixel pixelTo)
         {
-            List<PixelInfo> sameYList = sidesList
+            List<Pixel> sameYList = sidesList
                 .Where(x => (int)x.Point.Y == y)
                 .OrderBy(x => (int)x.Point.X)
                 .ToList();
@@ -39,7 +39,7 @@ namespace CgaLab.Api.Bitmaps
             pixelTo = sameYList[sameYList.Count - 1];
         }
 
-        protected void FindMinAndMaxY(List<PixelInfo> sidesList, out int min, out int max)
+        protected void FindMinAndMaxY(List<Pixel> sidesList, out int min, out int max)
         {
             var list = sidesList.OrderBy(x => (int)x.Point.Y).ToList();
             min = (int)list[0].Point.Y;

@@ -73,7 +73,7 @@ namespace CgaLab.Api.Bitmaps
 
         protected void DrawPoligon(List<Vector3> vertexIndexes, Vector3 lightVector)
         {
-            List<PixelInfo> sidesList = new List<PixelInfo>();
+            List<Pixel> sidesList = new List<Pixel>();
             Color color = GetColorForPoligon(vertexIndexes, lightVector);
 
             for (int i = 0; i < vertexIndexes.Count - 1; i++)
@@ -102,7 +102,12 @@ namespace CgaLab.Api.Bitmaps
             return Light.GetAverageColor(colors);
         }
 
-        private void DrawLine(int from, int to, List<Vector3> indexes, Color color, List<PixelInfo> sidesList)
+        private void DrawLine(
+            int from, 
+            int to, 
+            List<Vector3> indexes, 
+            Color color, 
+            List<Pixel> sidesList)
         {
             int indexFrom = (int)indexes[from].X - 1;
             int indexTo = (int)indexes[to].X - 1;
@@ -110,14 +115,14 @@ namespace CgaLab.Api.Bitmaps
             Vector3 vertexFrom = windowVertices[indexFrom];
             Vector3 vertexTo = windowVertices[indexTo];
 
-            PixelInfo pixelFrom = new PixelInfo()
+            Pixel pixelFrom = new Pixel()
             {
                 Point = new Vector3(
                     (int)Math.Round(vertexFrom.X),
                     (int)Math.Round(vertexFrom.Y),
                     vertexFrom.Z)
             };
-            PixelInfo pixelTo = new PixelInfo()
+            Pixel pixelTo = new Pixel()
             {
                 Point = new Vector3(
                     (int)Math.Round(vertexTo.X),
@@ -125,55 +130,48 @@ namespace CgaLab.Api.Bitmaps
                     vertexTo.Z)
             };
 
-            IEnumerable<PixelInfo> drawnPixels = LineDrawer.DrawLinePoints(pixelFrom, pixelTo);
+            IEnumerable<Pixel> drawnPixels = LineDrawer.DrawLinePoints(pixelFrom, pixelTo);
 
-            foreach (PixelInfo pixel in drawnPixels)
+            foreach (Pixel pixel in drawnPixels)
             {
                 sidesList.Add(pixel);
 
-                var point = pixel.Point;
-
-                if (point.X > 0 
-                    && point.X < ZBuf.Width 
-                    && point.Y > 0 
-                    && point.Y < ZBuf.Height)
-                {
-                    if (point.Z <= ZBuf[(int)point.X, (int)point.Y])
-                    {
-                        ZBuf[(int)point.X, (int)point.Y] = point.Z;
-                        bitmap[(int)point.X, (int)point.Y] = color;
-                    }
-                }
+                DrawPixel(pixel, color);
             }
         }
 
-        protected void DrawPixelForRasterization(List<PixelInfo> sidesList, Color color)
+        protected void DrawPixelForRasterization(List<Pixel> sidesList, Color color)
         {
             int minY, maxY;
-            PixelInfo pixelFrom, pixelTo;
+            Pixel pixelFrom, pixelTo;
             FindMinAndMaxY(sidesList, out minY, out maxY);
 
             for (int y = minY + 1; y < maxY; y++)
             {
                 FindStartAndEndXByY(sidesList, y, out pixelFrom, out pixelTo);
 
-                IEnumerable<PixelInfo> drawnPixels = LineDrawer.DrawLinePoints(pixelFrom, pixelTo);
+                IEnumerable<Pixel> drawnPixels = LineDrawer.DrawLinePoints(pixelFrom, pixelTo);
 
-                foreach (PixelInfo pixel in drawnPixels)
+                foreach (Pixel pixel in drawnPixels)
                 {
-                    Vector3 point = pixel.Point;
+                    DrawPixel(pixel, color);
+                }
+            }
+        }
 
-                    if (point.X > 0 
-                        && point.X < ZBuf.Width 
-                        && point.Y > 0 
-                        && point.Y < ZBuf.Height)
-                    {
-                        if (point.Z <= ZBuf[(int)point.X, (int)point.Y])
-                        {
-                            ZBuf[(int)point.X, (int)point.Y] = point.Z;
-                            bitmap[(int)point.X, (int)point.Y] = color;
-                        }
-                    }
+        protected void DrawPixel(Pixel pixel, Color color)
+        {
+            Vector3 point = pixel.Point;
+
+            if (point.X > 0
+                && point.X < ZBuf.Width
+                && point.Y > 0
+                && point.Y < ZBuf.Height)
+            {
+                if (point.Z <= ZBuf[(int)point.X, (int)point.Y])
+                {
+                    ZBuf[(int)point.X, (int)point.Y] = point.Z;
+                    bitmap[(int)point.X, (int)point.Y] = color;
                 }
             }
         }

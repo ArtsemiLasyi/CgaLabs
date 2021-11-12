@@ -10,6 +10,8 @@ namespace CgaLab.Api.Lighting
     {
         private Color objectColor;  // цвет рассеянного света
 
+        private readonly float kd = 0.9f;  // коэффициент рассеянного освещения
+
         public LambertLighting(Color color)
         {
             objectColor = color;
@@ -34,8 +36,8 @@ namespace CgaLab.Api.Lighting
                     : (byte)255;
             byte blue = 
                 (Math.Round(objectColor.B * coefficient) <= 255)
-                ? (byte)Math.Round(objectColor.B * coefficient)
-                : (byte)255;
+                    ? (byte)Math.Round(objectColor.B * coefficient)
+                    : (byte)255;
 
             return Color.FromArgb(255, red, green, blue);
         }

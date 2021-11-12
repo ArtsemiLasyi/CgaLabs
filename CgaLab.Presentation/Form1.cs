@@ -36,8 +36,9 @@ namespace CgaLab.Presentation
             cameraManipulator = new CameraManipulator();
             lightManipulator = new LightSourceManipulator();
             transformator = new MatrixTransformator(Size.Width, Size.Height);
-            lambertBitmapDrawer = new LambertBitmapDrawer(Size.Width, Size.Height);
-            //phongBitmapDrawer = new PhongBitmapDrawer(Size.Width, Size.Height);
+
+            //lambertBitmapDrawer = new LambertBitmapDrawer(Size.Width, Size.Height);
+            phongBitmapDrawer = new PhongBitmapDrawer(Size.Width, Size.Height);
 
             InitPictureBox();
         }
@@ -64,8 +65,8 @@ namespace CgaLab.Presentation
                 transformator.Width = Size.Width;
             }
 
-            //phongBitmapDrawer = new PhongBitmapDrawer(Size.Width, Size.Height);
-            lambertBitmapDrawer = new LambertBitmapDrawer(Size.Width, Size.Height);
+            phongBitmapDrawer = new PhongBitmapDrawer(Size.Width, Size.Height);
+            //lambertBitmapDrawer = new LambertBitmapDrawer(Size.Width, Size.Height);
         }
 
         private async void FormACG_KeyDown(object sender, KeyEventArgs e)
@@ -87,8 +88,8 @@ namespace CgaLab.Presentation
         private void DrawTimer_Tick(object sender, EventArgs e)
         {
             points = transformator.Transform(cameraManipulator.Camera, model);
-            //ModelPictureBox.Image = phongBitmapDrawer.GetBitmap(points, model, lightManipulator.LightSource, cameraManipulator.Camera.Eye);
-            ModelPictureBox.Image = lambertBitmapDrawer.GetBitmap(points, model, lightManipulator.LightSource);
+            ModelPictureBox.Image = phongBitmapDrawer.GetBitmap(points, model, lightManipulator.LightSource, cameraManipulator.Camera.Eye);
+            //ModelPictureBox.Image = lambertBitmapDrawer.GetBitmap(points, model, lightManipulator.LightSource);
         }
 
         private void ModelPictureBox_MouseDown(object sender, MouseEventArgs e)
