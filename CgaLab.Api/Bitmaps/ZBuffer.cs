@@ -16,24 +16,14 @@ namespace CgaLab.Api.Bitmaps
         {
             Width = width;
             Height = height;
-            buffer = Enumerable.Repeat(double.MaxValue, width * height).ToArray();
+            buffer = Enumerable
+                .Repeat(double.MaxValue, width * height)
+                .ToArray();
         }
 
         private int GetAddress(int x, int y)
         {
             return (y - 1) * Width + (x - 1);
-        }
-
-        private bool IsValidParams(int x, int y)
-        {
-            bool result = true;
-
-            if (x < 0 || x > Width || y < 0 || y > Height)
-            {
-                result = false;
-            }
-
-            return result;
         }
 
         public double this[int x, int y]
@@ -78,6 +68,18 @@ namespace CgaLab.Api.Bitmaps
         IEnumerator IEnumerable.GetEnumerator()
         {
             return buffer.GetEnumerator();
+        }
+
+        private bool IsValidParams(int x, int y)
+        {
+            bool result = true;
+
+            if (x < 0 || x > Width || y < 0 || y > Height)
+            {
+                result = false;
+            }
+
+            return result;
         }
     }
 }

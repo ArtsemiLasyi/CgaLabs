@@ -1,158 +1,31 @@
-﻿using CgaLab.Api.Lighting;
+﻿using System.Collections.Generic;
+using System.Numerics;
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Numerics;
-using System.Threading.Tasks;
 
 namespace CgaLab.Api.Bitmaps
 {
-    public class BitmapDrawer
+    public abstract class BitmapDrawer
     {
-        private ExtendedBitmap bitmap;
-        private List<Vector3> windowVertices;
+        protected ExtendedBitmap bitmap;
+        protected List<Vector3> windowVertices;
         public ZBuffer ZBuf { get; protected set; }
-        private Color activeColor = Color.Green;
-        private WatchModel model;
-        private LamberLighting Light { get; set; }
+        protected Color activeColor = Color.Green;
+        protected WatchModel model;
 
-        public int Width 
-        { 
-            get
+        protected bool IsPoligonVisible(List<Vector3> poligon)
+        {
+            bool result = true;
+
+            Vector3 normal = GetPoligonNormal(poligon);
+
+            if (normal.Z >= 0)
             {
-                return bitmap.Width;
-            }
-        }
-        public int Height
-        {
-            get
-            {
-                return bitmap.Height;
-            }
-        }
-
-        public BitmapDrawer(int width, int height)
-        {
-            bitmap = new ExtendedBitmap(width, height);
-            ZBuf = new ZBuffer(bitmap.Width, bitmap.Height);
-            Light = new LamberLighting(activeColor);
-        }
-
-        public Bitmap GetBitmap(List<Vector3> windowVertices, WatchModel model, Vector3 lightVector)
-        {
-            int width = Width;
-            int height = Height;
-            bitmap = new ExtendedBitmap(width, height);
-            ZBuf = new ZBuffer(bitmap.Width, bitmap.Height);
-
-            this.windowVertices = windowVertices;
-            this.model = model;
-
-            bitmap.LockBits();
-
-            DrawAllPixels(lightVector);
-
-            bitmap.UnlockBits();
-
-            return bitmap.Source;
-        }
-
-        private void DrawAllPixels(Vector3 lightVector)
-        {
-            List<List<Vector3>> facesList = model.Poligons;
-
-            Parallel.ForEach(Partitioner.Create(0, facesList.Count), range =>
-            {
-                for (int i = range.Item1; i < range.Item2; i++)
-                {
-                    var face = facesList[i];
-                    if (IsFaceVisible(face))
-                    {
-                        DrawFace(face, lightVector);
-                    }
-                }
-            });
-        }
-
-        protected void DrawFace(List<Vector3> vertexIndexes, Vector3 lightVector)
-        {
-            List<PixelInfo> sidesList = new List<PixelInfo>();
-            Color color = GetColorForFace(vertexIndexes, lightVector);
-
-            for (int i = 0; i < vertexIndexes.Count - 1; i++)
-            {
-                DrawLine(i, i + 1, vertexIndexes, color, sidesList);
+                result = false;
             }
 
-            DrawLine(vertexIndexes.Count - 1, 0, vertexIndexes, color, sidesList);
-
-            DrawPixelForRasterization(sidesList, color);
-        }
-
-        private Color GetColorForFace(List<Vector3> face, Vector3 lightVector)
-        {
-            List<Color> colors = new List<Color>();
-            foreach (var index in face)
-            {
-                int normalIndex = (int)index.Z - 1;
-                Color pointColor = Light.GetPointColor(
-                    model.Normals[normalIndex],
-                    lightVector);
-                colors.Add(pointColor);
-            }
-
-            return Light.GetAverageColor(colors);
-        }
-
-        private void DrawLine(int from, int to, List<Vector3> indexes, Color color, List<PixelInfo> sidesList)
-        {
-            int indexFrom = (int)indexes[from].X - 1;
-            int indexTo = (int)indexes[to].X - 1;
-
-            Vector3 vertexFrom = windowVertices[indexFrom];
-            Vector3 vertexTo = windowVertices[indexTo];
-
-            PixelInfo pixelFrom = new PixelInfo()
-            {
-                Point = new Vector3(
-                    (int)Math.Round(vertexFrom.X),
-                    (int)Math.Round(vertexFrom.Y),
-                    vertexFrom.Z)
-            };
-            PixelInfo pixelTo = new PixelInfo()
-            {
-                Point = new Vector3(
-                    (int)Math.Round(vertexTo.X),
-                    (int)Math.Round(vertexTo.Y),
-                    vertexTo.Z)
-            };
-
-            IEnumerable<PixelInfo> drawnPixels = LineDrawer.DrawLinePoints(pixelFrom, pixelTo);
-
-            foreach (PixelInfo pixel in drawnPixels)
-            {
-                sidesList.Add(pixel);
-
-                var point = pixel.Point;
-
-                if (point.X > 0 && point.X < ZBuf.Width && point.Y > 0 && point.Y < ZBuf.Height)
-                {
-                    if (point.Z <= ZBuf[(int)point.X, (int)point.Y])
-                    {
-                        ZBuf[(int)point.X, (int)point.Y] = point.Z;
-                        bitmap[(int)point.X, (int)point.Y] = color;
-                    }
-                }
-            }
-        }
-
-        protected void FindMinAndMaxY(List<PixelInfo> sidesList, out int min, out int max)
-        {
-            var list = sidesList.OrderBy(x => (int)x.Point.Y).ToList();
-            min = (int)list[0].Point.Y;
-            max = (int)list[sidesList.Count - 1].Point.Y;
+            return result;
         }
 
         protected void FindStartAndEndXByY(List<PixelInfo> sidesList, int y, out PixelInfo pixelFrom, out PixelInfo pixelTo)
@@ -166,53 +39,18 @@ namespace CgaLab.Api.Bitmaps
             pixelTo = sameYList[sameYList.Count - 1];
         }
 
-        protected void DrawPixelForRasterization(List<PixelInfo> sidesList, Color color)
+        protected void FindMinAndMaxY(List<PixelInfo> sidesList, out int min, out int max)
         {
-            int minY, maxY;
-            PixelInfo pixelFrom, pixelTo;
-            FindMinAndMaxY(sidesList, out minY, out maxY);
-
-            for (int y = minY + 1; y < maxY; y++)
-            {
-                FindStartAndEndXByY(sidesList, y, out pixelFrom, out pixelTo);
-
-                IEnumerable<PixelInfo> drawnPixels = LineDrawer.DrawLinePoints(pixelFrom, pixelTo);
-
-                foreach (PixelInfo pixel in drawnPixels)
-                {
-                    var point = pixel.Point;
-
-                    if (point.X > 0 && point.X < ZBuf.Width && point.Y > 0 && point.Y < ZBuf.Height)
-                    {
-                        if (point.Z <= ZBuf[(int)point.X, (int)point.Y])
-                        {
-                            ZBuf[(int)point.X, (int)point.Y] = point.Z;
-                            bitmap[(int)point.X, (int)point.Y] = color;
-                        }
-                    }
-                }
-            }
+            var list = sidesList.OrderBy(x => (int)x.Point.Y).ToList();
+            min = (int)list[0].Point.Y;
+            max = (int)list[sidesList.Count - 1].Point.Y;
         }
 
-        protected bool IsFaceVisible(List<Vector3> face)
+        protected Vector3 GetPoligonNormal(List<Vector3> Poligon)
         {
-            bool result = true;
-
-            Vector3 normal = GetFaceNormal(face);
-
-            if (normal.Z >= 0)
-            {
-                result = false;
-            }
-
-            return result;
-        }
-
-        protected Vector3 GetFaceNormal(List<Vector3> face)
-        {
-            int indexPoint1 = (int)Math.Round(face[0].X - 1);
-            int indexPoint2 = (int)Math.Round(face[1].X - 1);
-            int indexPoint3 = (int)Math.Round(face[2].X - 1);
+            int indexPoint1 = (int)Math.Round(Poligon[0].X - 1);
+            int indexPoint2 = (int)Math.Round(Poligon[1].X - 1);
+            int indexPoint3 = (int)Math.Round(Poligon[2].X - 1);
 
             Vector3 point1 = windowVertices[indexPoint1];
             Vector3 point2 = windowVertices[indexPoint2];

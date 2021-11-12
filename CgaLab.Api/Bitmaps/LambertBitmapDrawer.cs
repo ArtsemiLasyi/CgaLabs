@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 
 namespace CgaLab.Api.Bitmaps
 {
-    public class PhongBitmapDrawer : BitmapDrawer
+    public class LambertBitmapDrawer : BitmapDrawer
     {
-        private PhongLighting Light { get; set; }
+        private LambertLighting Light { get; set; }
 
-        public int Width
-        {
+        public int Width 
+        { 
             get
             {
                 return bitmap.Width;
@@ -28,14 +28,14 @@ namespace CgaLab.Api.Bitmaps
             }
         }
 
-        public PhongBitmapDrawer(int width, int height)
+        public LambertBitmapDrawer(int width, int height)
         {
             bitmap = new ExtendedBitmap(width, height);
             ZBuf = new ZBuffer(bitmap.Width, bitmap.Height);
-            Light = new PhongLighting(activeColor, Color.WhiteSmoke, Color.DarkGreen);
+            Light = new LambertLighting(activeColor);
         }
 
-        public Bitmap GetBitmap(List<Vector3> windowVertices, WatchModel model, Vector3 lightVector, Vector3 viewVector)
+        public Bitmap GetBitmap(List<Vector3> windowVertices, WatchModel model, Vector3 lightVector)
         {
             int width = Width;
             int height = Height;
@@ -47,14 +47,14 @@ namespace CgaLab.Api.Bitmaps
 
             bitmap.LockBits();
 
-            DrawAllPixels(lightVector, viewVector);
+            DrawAllPixels(lightVector);
 
             bitmap.UnlockBits();
 
             return bitmap.Source;
         }
 
-        private void DrawAllPixels(Vector3 lightVector, Vector3 viewVector)
+        private void DrawAllPixels(Vector3 lightVector)
         {
             List<List<Vector3>> poligonsList = model.Poligons;
 
@@ -65,39 +65,47 @@ namespace CgaLab.Api.Bitmaps
                     List<Vector3> poligon = poligonsList[i];
                     if (IsPoligonVisible(poligon))
                     {
-                        DrawPoligon(poligon, lightVector, viewVector);
+                        DrawPoligon(poligon, lightVector);
                     }
                 }
             });
         }
 
-        protected void DrawPoligon(List<Vector3> vertexIndexes, Vector3 lightVector, Vector3 viewVector)
+        protected void DrawPoligon(List<Vector3> vertexIndexes, Vector3 lightVector)
         {
             List<PixelInfo> sidesList = new List<PixelInfo>();
+            Color color = GetColorForPoligon(vertexIndexes, lightVector);
 
             for (int i = 0; i < vertexIndexes.Count - 1; i++)
             {
-                DrawLine(i, i + 1, vertexIndexes, sidesList, lightVector, viewVector);
+                DrawLine(i, i + 1, vertexIndexes, color, sidesList);
             }
 
-            DrawLine(vertexIndexes.Count - 1, 0, vertexIndexes, sidesList, lightVector, viewVector);
+            DrawLine(vertexIndexes.Count - 1, 0, vertexIndexes, color, sidesList);
 
-            DrawPixelForRasterization(sidesList, lightVector, viewVector);
+            DrawPixelForRasterization(sidesList, color);
         }
 
-        private void DrawLine(
-            int from,
-            int to,
-            List<Vector3> indexes,
-            List<PixelInfo> sidesList,
-            Vector3 lightVector,
-            Vector3 viewVector)
+        private Color GetColorForPoligon(List<Vector3> poligon, Vector3 lightVector)
+        {
+            List<Color> colors = new List<Color>();
+            foreach (Vector3 index in poligon)
+            {
+                int normalIndex = (int)index.Z - 1;
+                Color pointColor = Light.GetPointColor(
+                    model.Normals[normalIndex],
+                    lightVector
+                );
+                colors.Add(pointColor);
+            }
+
+            return Light.GetAverageColor(colors);
+        }
+
+        private void DrawLine(int from, int to, List<Vector3> indexes, Color color, List<PixelInfo> sidesList)
         {
             int indexFrom = (int)indexes[from].X - 1;
             int indexTo = (int)indexes[to].X - 1;
-
-            int indexNormalFrom = (int)indexes[from].Z - 1;
-            int indexNormalTo = (int)indexes[to].Z - 1;
 
             Vector3 vertexFrom = windowVertices[indexFrom];
             Vector3 vertexTo = windowVertices[indexTo];
@@ -107,20 +115,14 @@ namespace CgaLab.Api.Bitmaps
                 Point = new Vector3(
                     (int)Math.Round(vertexFrom.X),
                     (int)Math.Round(vertexFrom.Y),
-                    vertexFrom.Z
-                ),
-                Normal = model.Normals[indexNormalFrom],
-                World = model.Vertixes[indexFrom]
+                    vertexFrom.Z)
             };
             PixelInfo pixelTo = new PixelInfo()
             {
                 Point = new Vector3(
                     (int)Math.Round(vertexTo.X),
                     (int)Math.Round(vertexTo.Y),
-                    vertexTo.Z
-                ),
-                Normal = model.Normals[indexNormalTo],
-                World = model.Vertixes[indexTo]
+                    vertexTo.Z)
             };
 
             IEnumerable<PixelInfo> drawnPixels = LineDrawer.DrawLinePoints(pixelFrom, pixelTo);
@@ -129,15 +131,15 @@ namespace CgaLab.Api.Bitmaps
             {
                 sidesList.Add(pixel);
 
-                Vector3 point = pixel.Point;
+                var point = pixel.Point;
 
-                if (point.X > 0 && point.X < ZBuf.Width && point.Y > 0 && point.Y < ZBuf.Height)
+                if (point.X > 0 
+                    && point.X < ZBuf.Width 
+                    && point.Y > 0 
+                    && point.Y < ZBuf.Height)
                 {
                     if (point.Z <= ZBuf[(int)point.X, (int)point.Y])
                     {
-                        Vector4 world4 = pixel.World / pixel.World.W;
-                        Vector3 world3 = new Vector3(world4.X, world4.Y, world4.Z);
-                        Color color = Light.GetPointColor(pixel.Normal, lightVector, viewVector - world3);
                         ZBuf[(int)point.X, (int)point.Y] = point.Z;
                         bitmap[(int)point.X, (int)point.Y] = color;
                     }
@@ -145,7 +147,7 @@ namespace CgaLab.Api.Bitmaps
             }
         }
 
-        protected void DrawPixelForRasterization(List<PixelInfo> sidesList, Vector3 lightVector, Vector3 viewVector)
+        protected void DrawPixelForRasterization(List<PixelInfo> sidesList, Color color)
         {
             int minY, maxY;
             PixelInfo pixelFrom, pixelTo;
@@ -161,13 +163,13 @@ namespace CgaLab.Api.Bitmaps
                 {
                     Vector3 point = pixel.Point;
 
-                    if (point.X > 0 && point.X < ZBuf.Width && point.Y > 0 && point.Y < ZBuf.Height)
+                    if (point.X > 0 
+                        && point.X < ZBuf.Width 
+                        && point.Y > 0 
+                        && point.Y < ZBuf.Height)
                     {
                         if (point.Z <= ZBuf[(int)point.X, (int)point.Y])
                         {
-                            Vector4 world4 = pixel.World / pixel.World.W;
-                            Vector3 world3 = new Vector3(world4.X, world4.Y, world4.Z);
-                            Color color = Light.GetPointColor(pixel.Normal, lightVector, viewVector - world3);
                             ZBuf[(int)point.X, (int)point.Y] = point.Z;
                             bitmap[(int)point.X, (int)point.Y] = color;
                         }
@@ -175,7 +177,5 @@ namespace CgaLab.Api.Bitmaps
                 }
             }
         }
-
-        
     }
 }

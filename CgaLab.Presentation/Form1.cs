@@ -14,14 +14,20 @@ namespace CgaLab.Presentation
     public partial class FormACG : Form
     {
         MatrixTransformator transformator;
-        PhongBitmapDrawer bitmapDrawer;
+
+        PhongBitmapDrawer phongBitmapDrawer;
+        LambertBitmapDrawer lambertBitmapDrawer;
+
         CameraManipulator cameraManipulator;
         LightSourceManipulator lightManipulator;
         WatchModel model;
         List<Vector3> points;
 
-        private bool mouseDown = false;
-        private Point mousePosition = new Point(0, 0);
+        private bool leftMouseDown = false;
+        private bool rightMouseDown = false;
+
+        private Point leftMousePosition = new Point(0, 0);
+        private Point rightMousePosition = new Point(0, 0);
 
         public FormACG()
         {
@@ -30,8 +36,8 @@ namespace CgaLab.Presentation
             cameraManipulator = new CameraManipulator();
             lightManipulator = new LightSourceManipulator();
             transformator = new MatrixTransformator(Size.Width, Size.Height);
-            //bitmapDrawer = new BitmapDrawer(Size.Width, Size.Height);
-            bitmapDrawer = new PhongBitmapDrawer(Size.Width, Size.Height);
+            lambertBitmapDrawer = new LambertBitmapDrawer(Size.Width, Size.Height);
+            //phongBitmapDrawer = new PhongBitmapDrawer(Size.Width, Size.Height);
 
             InitPictureBox();
         }
@@ -58,7 +64,8 @@ namespace CgaLab.Presentation
                 transformator.Width = Size.Width;
             }
 
-            bitmapDrawer = new PhongBitmapDrawer(Size.Width, Size.Height);
+            //phongBitmapDrawer = new PhongBitmapDrawer(Size.Width, Size.Height);
+            lambertBitmapDrawer = new LambertBitmapDrawer(Size.Width, Size.Height);
         }
 
         private async void FormACG_KeyDown(object sender, KeyEventArgs e)
@@ -75,72 +82,79 @@ namespace CgaLab.Presentation
                 model = new WatchModel(objModel);
                 DrawTimer.Start();
             }
-
-            if (e.KeyCode == Keys.W)
-            {
-                lightManipulator.MoveFront();
-            }
-
-            if (e.KeyCode == Keys.S)
-            {
-                lightManipulator.MoveBack();
-            }
-
-            if (e.KeyCode == Keys.D)
-            {
-                lightManipulator.MoveRight();
-            }
-
-            if (e.KeyCode == Keys.A)
-            {
-                lightManipulator.MoveLeft();
-            }
-
-            if (e.KeyCode == Keys.Q)
-            {
-                lightManipulator.MoveUp();
-            }
-
-            if (e.KeyCode == Keys.E)
-            {
-                lightManipulator.MoveDown();
-            }
         }
 
         private void DrawTimer_Tick(object sender, EventArgs e)
         {
             points = transformator.Transform(cameraManipulator.Camera, model);
-            ModelPictureBox.Image = bitmapDrawer.GetBitmap(points, model, lightManipulator.LightSource, cameraManipulator.Camera.Eye);
+            //ModelPictureBox.Image = phongBitmapDrawer.GetBitmap(points, model, lightManipulator.LightSource, cameraManipulator.Camera.Eye);
+            ModelPictureBox.Image = lambertBitmapDrawer.GetBitmap(points, model, lightManipulator.LightSource);
         }
 
         private void ModelPictureBox_MouseDown(object sender, MouseEventArgs e)
         {
-            mouseDown = true;
+            if (e.Button == MouseButtons.Left)
+            {
+                leftMouseDown = true;
+            }
+            
+            if (e.Button == MouseButtons.Right)
+            {
+                rightMouseDown = true;
+            }
+
             SaveMousePosition(e);
         }
 
         private void ModelPictureBox_MouseUp(object sender, MouseEventArgs e)
         {
-            mouseDown = false;
+            if (leftMouseDown)
+            {
+                leftMouseDown = false;
+            }
+            
+            if (rightMouseDown)
+            {
+                rightMouseDown = false;
+            }
         }
 
         private void ModelPictureBox_MouseMove(object sender, MouseEventArgs e)
         {
-            if (mouseDown)
+            if (leftMouseDown)
             {
-                int xOffset = e.X - mousePosition.X;
-                int yOffset = mousePosition.Y - e.Y;
+                int xOffset = e.X - leftMousePosition.X;
+                int yOffset = leftMousePosition.Y - e.Y;
 				SaveMousePosition(e);
 
                 cameraManipulator.RotateX(yOffset);
                 cameraManipulator.RotateY(xOffset);
             }
+
+            if (rightMouseDown)
+            {
+                int xOffset = e.X - rightMousePosition.X;
+                int yOffset = rightMousePosition.Y - e.Y;
+                SaveMousePosition(e);
+
+                lightManipulator.RotateX(yOffset);
+                lightManipulator.RotateY(xOffset);
+            }
         }
 		
 		private void SaveMousePosition(MouseEventArgs e)
 		{
-			mousePosition.X = e.X;
-            mousePosition.Y = e.Y;
+            if (leftMouseDown)
+            {
+                leftMousePosition.X = e.X;
+                leftMousePosition.Y = e.Y;
+            }
+
+            if (rightMouseDown)
+            {
+                rightMousePosition.X = e.X;
+                rightMousePosition.Y = e.Y;
+            }
 		}	
     }
 }

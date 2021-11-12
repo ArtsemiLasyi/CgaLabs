@@ -28,7 +28,7 @@ namespace CgaLab.Api
             Normals = objModel.Vn;
             Poligons = objModel.F;
             int max = GetMax();
-            Scale = 300 / max;
+            Scale = 500 / max;
         }
 
         public int GetMax()

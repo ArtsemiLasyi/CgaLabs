@@ -6,41 +6,21 @@ namespace CgaLab.Api.Lighting
     {
         public Vector3 LightSource { get; private set; }
 
-        private readonly float sensitivity = 10f;
+        private readonly float sensitivity = 0.1f;
 
         public LightSourceManipulator()
         {
             LightSource = new Vector3(0, 500, 0);
         }
 
-        public void MoveUp()
+        public void RotateY(int xOffset)
         {
-            LightSource += Vector3.UnitY * sensitivity;
+            LightSource = Vector3.Transform(LightSource, Matrix4x4.CreateRotationY(sensitivity * -xOffset));
         }
 
-        public void MoveDown()
+        public void RotateX(int yOffset)
         {
-            LightSource -= Vector3.UnitY * sensitivity;
-        }
-
-        public void MoveRight()
-        {
-            LightSource += Vector3.UnitX * sensitivity;
-        }
-
-        public void MoveLeft()
-        {
-            LightSource -= Vector3.UnitX * sensitivity;
-        }
-
-        public void MoveFront()
-        {
-            LightSource -= Vector3.UnitZ * sensitivity;
-        }
-
-        public void MoveBack()
-        {
-            LightSource += Vector3.UnitZ * sensitivity;
+            LightSource = Vector3.Transform(LightSource, Matrix4x4.CreateRotationX(sensitivity * yOffset));
         }
     }
 }
