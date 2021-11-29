@@ -142,9 +142,9 @@ namespace CgaLab.Presentation
                 lightManipulator.RotateY(xOffset);
             }
         }
-		
-		private void SaveMousePosition(MouseEventArgs e)
-		{
+
+        private void SaveMousePosition(MouseEventArgs e)
+        {
             if (leftMouseDown)
             {
                 leftMousePosition.X = e.X;
@@ -155,6 +155,7 @@ namespace CgaLab.Presentation
             {
                 rightMousePosition.X = e.X;
                 rightMousePosition.Y = e.Y;
-            }	
+            }
+        }
     }
 }
