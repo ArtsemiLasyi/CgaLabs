@@ -39,9 +39,11 @@ namespace CgaLab.Presentation
             // ModelPictureBox
             // 
             this.ModelPictureBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.ModelPictureBox.Location = new System.Drawing.Point(-1, -1);
+            this.ModelPictureBox.Location = new System.Drawing.Point(-1, 1);
+            this.ModelPictureBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.ModelPictureBox.Name = "ModelPictureBox";
-            this.ModelPictureBox.Size = new System.Drawing.Size(800, 447);
+            this.ModelPictureBox.Size = new System.Drawing.Size(800, 557);
+
             this.ModelPictureBox.TabIndex = 0;
             this.ModelPictureBox.TabStop = false;
             this.ModelPictureBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.ModelPictureBox_MouseDown);
@@ -59,10 +61,12 @@ namespace CgaLab.Presentation
             // 
             // FormACG
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1089, 490);
+            this.ClientSize = new System.Drawing.Size(802, 560);
             this.Controls.Add(this.ModelPictureBox);
+            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+
             this.Name = "FormACG";
             this.Text = "ACG";
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FormACG_KeyDown);

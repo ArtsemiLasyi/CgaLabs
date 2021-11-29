@@ -15,9 +15,10 @@ namespace CgaLab.Api.ObjFormat
             char[] separator = Environment.NewLine.ToCharArray();
 
             using StreamReader reader = new StreamReader(path);
-            string text = await reader.ReadToEndAsync();
+            List<string> lines = (await reader.ReadToEndAsync())
+                .Split(separator)
+                .ToList();
 
-            List<string> lines = text.Split(separator).ToList();
             return GetModel(lines);
         }
 

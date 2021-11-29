@@ -1,6 +1,7 @@
-﻿using CgaLab.Api.ObjFormat;
+using CgaLab.Api.ObjFormat;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 
 namespace CgaLab.Api
@@ -27,22 +28,20 @@ namespace CgaLab.Api
             Normals = objModel.Vn;
             Poligons = objModel.F;
             int max = GetMax();
-            Scale = 500 / (max * 3);
+
+            Scale = 500 / max;
+
         }
 
         public int GetMax()
         {
-            int max = int.MinValue;
-            foreach (Vector4 vertex in Vertixes)
-            {
-                int max1 = (int)Math.Max(vertex.X, vertex.Y);
-                int max2 = (int)Math.Max(vertex.Z, vertex.W);
-                max1 = (int)Math.Max(max1, max2);
-                if (max1 > max)
-                {
-                    max = max1;
-                }
-            }
+            int deltaX = (int)Math.Abs(Vertixes.Max(v => v.X) - Vertixes.Min(v => v.X));
+            int deltaY = (int)Math.Abs(Vertixes.Max(v => v.Y) - Vertixes.Min(v => v.Y));
+            int deltaZ = (int)Math.Abs(Vertixes.Max(v => v.Z) - Vertixes.Min(v => v.Z));
+
+            int max = Math.Max(deltaX, deltaY);
+            max = Math.Max(max, deltaZ);
+
             return max;
         }
     }

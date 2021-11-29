@@ -1,97 +1,67 @@
-﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.Numerics;
-using System.Threading;
-using System.Threading.Tasks;
+using System;
+using System.Drawing;
+using System.Linq;
 
 namespace CgaLab.Api.Bitmaps
 {
-    public class BitmapDrawer
+    public abstract class BitmapDrawer
     {
-        private ExtendedBitmap bitmap;
-        private List<Vector3> windowVertices;
-        private Color activeColor = Color.Green;
+        protected ExtendedBitmap bitmap;
+        protected List<Vector3> windowVertices;
+        public ZBuffer ZBuf { get; protected set; }
+        protected Color activeColor = Color.Green;
+        protected WatchModel model;
 
-        public int Width 
-        { 
-            get
+        protected bool IsPoligonVisible(List<Vector3> poligon)
+        {
+            bool result = true;
+
+            Vector3 normal = GetPoligonNormal(poligon);
+
+            if (normal.Z >= 0)
             {
-                return bitmap.Width;
-            }
-        }
-        public int Height
-        {
-            get
-            {
-                return bitmap.Height;
-            }
-        }
-
-        public BitmapDrawer(int width, int height)
-        {
-            bitmap = new ExtendedBitmap(width, height);
-        }
-
-        public Bitmap GetBitmap(List<Vector3> windowVertices, WatchModel model)
-        {
-            int width = Width;
-            int height = Height;
-            bitmap = new ExtendedBitmap(width, height);
-
-            this.windowVertices = windowVertices;
-
-            bitmap.LockBits();
-            Parallel.ForEach(Partitioner.Create(0, model.Poligons.Count), range => {
-                for (int i = range.Item1; i < range.Item2; i++)
-                {
-                    DrawLines(model.Poligons[i]);
-                }
-            });
-          
-
-            bitmap.UnlockBits();
-
-            return bitmap.Source;
-        }
-
-        private void DrawLines(List<Vector3> vertexIndexes)
-        {
-            for (int i = 0; i < vertexIndexes.Count - 1; i++)
-            {
-                DrawLine(i, i + 1, vertexIndexes);
+                result = false;
             }
 
-            DrawLine(0, vertexIndexes.Count - 1, vertexIndexes);
+            return result;
         }
 
-        private void DrawLine(int from, int to, List<Vector3> indexes)
+        protected void FindStartAndEndXByY(List<Pixel> sidesList, int y, out Pixel pixelFrom, out Pixel pixelTo)
         {
-            int indexFrom = (int)indexes[from].X - 1;
-            int indexTo = (int)indexes[to].X - 1;
+            List<Pixel> sameYList = sidesList
+                .Where(x => (int)x.Point.Y == y)
+                .OrderBy(x => (int)x.Point.X)
+                .ToList();
 
-            Vector3 vertexFrom = windowVertices[indexFrom];
-            Vector3 vertexTo = windowVertices[indexTo];
-
-            Point pointFrom = GetPoint(vertexFrom);
-            Point pointTo = GetPoint(vertexTo);
-
-            IEnumerable<Point> drawnPoints = LineDrawer.DrawLinePoints(pointFrom, pointTo);
-
-            foreach (Point point in drawnPoints)
-            {
-                if ((point.X > 0) && (point.X < bitmap.Width)
-                    && (point.Y > 0) && (point.Y < bitmap.Height))
-                {
-                    bitmap[point.X, point.Y] = activeColor;
-                }
-            }
+            pixelFrom = sameYList[0];
+            pixelTo = sameYList[sameYList.Count - 1];
         }
 
-        private Point GetPoint(Vector3 vector)
+        protected void FindMinAndMaxY(List<Pixel> sidesList, out int min, out int max)
         {
-            return new Point((int)vector.X, (int)vector.Y);
+            var list = sidesList.OrderBy(x => (int)x.Point.Y).ToList();
+            min = (int)list[0].Point.Y;
+            max = (int)list[sidesList.Count - 1].Point.Y;
+        }
+
+        protected Vector3 GetPoligonNormal(List<Vector3> Poligon)
+        {
+            int indexPoint1 = (int)Math.Round(Poligon[0].X - 1);
+            int indexPoint2 = (int)Math.Round(Poligon[1].X - 1);
+            int indexPoint3 = (int)Math.Round(Poligon[2].X - 1);
+
+            Vector3 point1 = windowVertices[indexPoint1];
+            Vector3 point2 = windowVertices[indexPoint2];
+            Vector3 point3 = windowVertices[indexPoint3];
+
+            Vector3 vector1 = point2 - point1;
+            Vector3 vector2 = point3 - point1;
+            Vector3 vector1XYZ = new Vector3(vector1.X, vector1.Y, vector1.Z);
+            Vector3 vector2XYZ = new Vector3(vector2.X, vector2.Y, vector2.Z);
+
+            return Vector3.Normalize(Vector3.Cross(vector1XYZ, vector2XYZ));
         }
     }
 }
