@@ -1,4 +1,4 @@
-﻿using CgaLab.Api.ObjFormat;
+using CgaLab.Api.ObjFormat;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,7 +28,9 @@ namespace CgaLab.Api
             Normals = objModel.Vn;
             Poligons = objModel.F;
             int max = GetMax();
+
             Scale = 500 / max;
+
         }
 
         public int GetMax()
@@ -39,6 +41,7 @@ namespace CgaLab.Api
 
             int max = Math.Max(deltaX, deltaY);
             max = Math.Max(max, deltaZ);
+
             return max;
         }
     }

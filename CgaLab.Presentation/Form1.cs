@@ -126,7 +126,7 @@ namespace CgaLab.Presentation
             {
                 int xOffset = e.X - leftMousePosition.X;
                 int yOffset = leftMousePosition.Y - e.Y;
-				SaveMousePosition(e);
+				        SaveMousePosition(e);
 
                 cameraManipulator.RotateX(yOffset);
                 cameraManipulator.RotateY(xOffset);
@@ -155,7 +155,6 @@ namespace CgaLab.Presentation
             {
                 rightMousePosition.X = e.X;
                 rightMousePosition.Y = e.Y;
-            }
-		}	
+            }	
     }
 }

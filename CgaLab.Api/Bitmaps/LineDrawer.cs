@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 
@@ -90,7 +90,6 @@ namespace CgaLab.Api.Bitmaps
                 Normal = normal1,
                 World = world1
             });
-
             return points;
         }
     }

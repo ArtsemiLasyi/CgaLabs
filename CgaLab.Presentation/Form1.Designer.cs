@@ -43,6 +43,7 @@ namespace CgaLab.Presentation
             this.ModelPictureBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.ModelPictureBox.Name = "ModelPictureBox";
             this.ModelPictureBox.Size = new System.Drawing.Size(800, 557);
+
             this.ModelPictureBox.TabIndex = 0;
             this.ModelPictureBox.TabStop = false;
             this.ModelPictureBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.ModelPictureBox_MouseDown);
@@ -65,6 +66,7 @@ namespace CgaLab.Presentation
             this.ClientSize = new System.Drawing.Size(802, 560);
             this.Controls.Add(this.ModelPictureBox);
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+
             this.Name = "FormACG";
             this.Text = "ACG";
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FormACG_KeyDown);

@@ -18,6 +18,7 @@ namespace CgaLab.Api.ObjFormat
             List<string> lines = (await reader.ReadToEndAsync())
                 .Split(separator)
                 .ToList();
+
             return GetModel(lines);
         }
 
