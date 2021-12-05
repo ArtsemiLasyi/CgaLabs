@@ -15,6 +15,7 @@ namespace CgaLab.Api.Bitmaps
             
             Vector3 normal1 = pixel1.Normal;
             Vector4 world1 = pixel1.World;
+            Vector3 texture1 = pixel1.Texture;
             
             int deltaX, deltaY;
             int signX = 1, signY = 1;
@@ -23,6 +24,7 @@ namespace CgaLab.Api.Bitmaps
             
             Vector3 deltaN;
             Vector4 deltaW;
+            Vector3 deltaT;
 
             deltaX = Math.Abs((int)point2.X - (int)point1.X);
             deltaY = Math.Abs((int)point2.Y - (int)point1.Y);
@@ -31,6 +33,7 @@ namespace CgaLab.Api.Bitmaps
             
             deltaN = pixel2.Normal - pixel1.Normal;
             deltaW = pixel2.World - pixel1.World;
+            deltaT = pixel2.Texture - pixel1.Texture;
 
 
             if (deltaX > deltaY)
@@ -38,12 +41,14 @@ namespace CgaLab.Api.Bitmaps
                 deltaZ /= deltaX;
                 deltaN /= deltaX;
                 deltaW /= deltaX;
+                deltaT /= deltaX;
             }
             else
             {
                 deltaZ /= deltaY;
                 deltaN /= deltaY;
                 deltaW /= deltaY;
+                deltaT /= deltaY;
             }
 
             if (point1.X > point2.X)
@@ -63,7 +68,8 @@ namespace CgaLab.Api.Bitmaps
                 {
                     Point = new Vector3(point1.X, point1.Y, point1.Z),
                     Normal = normal1,
-                    World= world1
+                    World= world1,
+                    Texture = texture1
                 });
 
                 int error2 = error * 2;
@@ -82,13 +88,15 @@ namespace CgaLab.Api.Bitmaps
                 point1.Z += deltaZ;
                 normal1 += deltaN;
                 world1 += deltaW;
+                texture1 += deltaT;
             }
 
             points.Add(new Pixel()
             {
                 Point = new Vector3(point1.X, point1.Y, point1.Z),
                 Normal = normal1,
-                World = world1
+                World = world1,
+                Texture = texture1
             });
             return points;
         }

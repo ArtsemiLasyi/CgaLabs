@@ -18,12 +18,47 @@ namespace CgaLab.Api.Bitmaps
         public int Height { get; private set; }
         public Bitmap Source { get; private set; }
 
+        private static int GetBytesPerPixel(PixelFormat pixelFormat)
+        {
+            switch (pixelFormat)
+            {
+                case PixelFormat.Format64bppArgb or PixelFormat.Format64bppPArgb:
+                    return 64 / 8;
+
+                case PixelFormat.Format48bppRgb:
+                    return 48 / 8;
+
+                case PixelFormat.Format32bppArgb or PixelFormat.Format32bppPArgb or PixelFormat.Format32bppRgb:
+                    return 32 / 8;
+
+                case PixelFormat.Format24bppRgb:
+                    return 24 / 8;
+
+                case PixelFormat.Format16bppArgb1555 or PixelFormat.Format16bppGrayScale or PixelFormat.Format16bppRgb555 or PixelFormat.Format16bppRgb565:
+                    return 16 / 8;
+
+                case PixelFormat.Format8bppIndexed:
+                    return 8 / 8;
+
+                default:
+                    return 0;
+            }
+        }
+
         public ExtendedBitmap(int width, int height)
         {
             Source = new Bitmap(width, height, PixelFormat.Format32bppArgb);
             Width = Source.Width;
             Height = Source.Height;
-            BytesPerPixel = Source.PixelFormat == PixelFormat.Format32bppArgb ? 4 : 0;
+            BytesPerPixel = GetBytesPerPixel(Source.PixelFormat);
+        }
+
+        public ExtendedBitmap(string filename)
+        {
+            Source = new(filename, true);
+            Width = Source.Width;
+            Height = Source.Height;
+            BytesPerPixel = GetBytesPerPixel(Source.PixelFormat);
         }
 
         public void LockBits()
@@ -69,6 +104,12 @@ namespace CgaLab.Api.Bitmaps
                     address[3] = value.A;
                 }
             }
+        }
+
+        public unsafe Vector3 GetRGBVector(int x, int y)
+        {
+            byte* address = GetAddress(x, y);
+            return new Vector3(address[0], address[1], address[2]);
         }
 
         private void SetScanAndStride()

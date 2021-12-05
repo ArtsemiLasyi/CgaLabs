@@ -1,3 +1,4 @@
+using CgaLab.Api.Bitmaps;
 using CgaLab.Api.ObjFormat;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,12 @@ namespace CgaLab.Api
         public Vector3 Rotation { get; set; }
 
         public int Scale = 1;
+
+        public ExtendedBitmap NormalsTexture { get; set; }
+        public ExtendedBitmap DiffuseTexture { get; set; }
+        public ExtendedBitmap SpecularTexture { get; set; }
+
+        public Matrix4x4 worldMatrix { get; set; }
 
         public WatchModel(ObjModel objModel)
         {

@@ -22,6 +22,7 @@ namespace CgaLab.Api
         {
             //Мировые координаты
             Matrix4x4 worldMatrix = GetWorldSpace(model);
+            model.worldMatrix = worldMatrix;
 
             //Координаты наблюдателя
             Matrix4x4 viewMatrix = GetViewSpace(camera);
@@ -32,9 +33,9 @@ namespace CgaLab.Api
             Matrix4x4 transformMatrix = worldMatrix * viewMatrix * projectionMatrix;
 
             //Координаты окна
-            var vetixes = GetWindowSpace(transformMatrix, model.Vertixes);
+            List<Vector3> vertixes = GetWindowSpace(transformMatrix, model.Vertixes);
 
-            return vetixes;
+            return vertixes;
         }
 
         private Matrix4x4 GetWorldSpace(WatchModel model)

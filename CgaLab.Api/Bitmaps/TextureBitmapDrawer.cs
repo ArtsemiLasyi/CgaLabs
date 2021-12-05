@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CgaLab.Api.Bitmaps
 {
-    public class PhongBitmapDrawer : BitmapDrawer
+    public class TextureBitmapDrawer : BitmapDrawer
     {
         private PhongLighting Light { get; set; }
 
@@ -27,14 +27,19 @@ namespace CgaLab.Api.Bitmaps
             }
         }
 
-        public PhongBitmapDrawer(int width, int height)
+        public TextureBitmapDrawer(int width, int height)
         {
             bitmap = new ExtendedBitmap(width, height);
             ZBuf = new ZBuffer(bitmap.Width, bitmap.Height);
             Light = new PhongLighting(activeColor, Color.WhiteSmoke, Color.DarkGreen);
         }
 
-        public Bitmap GetBitmap(List<Vector3> windowVertices, WatchModel model, Vector3 lightVector, Vector3 viewVector)
+        public Bitmap GetBitmap(
+            List<Vector3> windowVertices, 
+            WatchModel model, 
+            Vector3 lightVector, 
+            Vector3 viewVector
+        )
         {
             int width = Width;
             int height = Height;
@@ -45,9 +50,15 @@ namespace CgaLab.Api.Bitmaps
             this.model = model;
 
             bitmap.LockBits();
+            model.DiffuseTexture?.LockBits();
+            model.NormalsTexture?.LockBits();
+            model.SpecularTexture?.LockBits();
 
             DrawAllPixels(lightVector, viewVector);
 
+            model.DiffuseTexture?.UnlockBits();
+            model.NormalsTexture?.UnlockBits();
+            model.SpecularTexture?.UnlockBits();
             bitmap.UnlockBits();
 
             return bitmap.Source;
@@ -101,6 +112,9 @@ namespace CgaLab.Api.Bitmaps
             int indexNormalFrom = (int)indexes[from].Z - 1;
             int indexNormalTo = (int)indexes[to].Z - 1;
 
+            int textureIndexFrom = (int)indexes[from].Y - 1;
+            int textureIndexTo = (int)indexes[to].Y - 1;
+
             Vector3 vertexFrom = windowVertices[indexFrom];
             Vector3 vertexTo = windowVertices[indexTo];
 
@@ -112,7 +126,8 @@ namespace CgaLab.Api.Bitmaps
                     vertexFrom.Z
                 ),
                 Normal = model.Normals[indexNormalFrom],
-                World = model.Vertixes[indexFrom]
+                World = model.Vertixes[indexFrom],
+                Texture = model.Textures[textureIndexFrom]
             };
             Pixel pixelTo = new Pixel()
             {
@@ -122,7 +137,8 @@ namespace CgaLab.Api.Bitmaps
                     vertexTo.Z
                 ),
                 Normal = model.Normals[indexNormalTo],
-                World = model.Vertixes[indexTo]
+                World = model.Vertixes[indexTo],
+                Texture = model.Textures[textureIndexTo]
             };
 
             IEnumerable<Pixel> drawnPixels = LineDrawer.DrawLinePoints(pixelFrom, pixelTo);
@@ -158,9 +174,9 @@ namespace CgaLab.Api.Bitmaps
         {
             Vector3 point = pixel.Point;
 
-            if (point.X > 0 
-                && point.X < ZBuf.Width 
-                && point.Y > 0 
+            if (point.X > 0
+                && point.X < ZBuf.Width
+                && point.Y > 0
                 && point.Y < ZBuf.Height)
             {
                 if (point.Z <= ZBuf[(int)point.X, (int)point.Y])
@@ -168,14 +184,18 @@ namespace CgaLab.Api.Bitmaps
                     Vector4 world4 = pixel.World / pixel.World.W;
                     Vector3 world3 = new Vector3(world4.X, world4.Y, world4.Z);
 
-                    Color color = Light.GetPointColor(pixel.Normal, lightVector, viewVector - world3);
+                    Color color = Light.GetPointColorWithTexture(
+                        pixel.Normal, 
+                        lightVector, 
+                        viewVector - world3,
+                        model, 
+                        pixel.Texture
+                    );
 
                     ZBuf[(int)point.X, (int)point.Y] = point.Z;
                     bitmap[(int)point.X, (int)point.Y] = color;
                 }
             }
         }
-
-        
     }
 }

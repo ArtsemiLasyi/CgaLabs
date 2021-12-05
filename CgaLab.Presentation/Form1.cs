@@ -6,6 +6,8 @@ using CgaLab.Api.ObjFormat;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
+using System.Linq;
 using System.Numerics;
 using System.Windows.Forms;
 
@@ -17,6 +19,7 @@ namespace CgaLab.Presentation
 
         PhongBitmapDrawer phongBitmapDrawer;
         LambertBitmapDrawer lambertBitmapDrawer;
+        TextureBitmapDrawer textureBitmapDrawer;
 
         CameraManipulator cameraManipulator;
         LightSourceManipulator lightManipulator;
@@ -38,7 +41,8 @@ namespace CgaLab.Presentation
             transformator = new MatrixTransformator(Size.Width, Size.Height);
 
             //lambertBitmapDrawer = new LambertBitmapDrawer(Size.Width, Size.Height);
-            phongBitmapDrawer = new PhongBitmapDrawer(Size.Width, Size.Height);
+            //phongBitmapDrawer = new PhongBitmapDrawer(Size.Width, Size.Height);
+            textureBitmapDrawer = new TextureBitmapDrawer(Size.Width, Size.Height);
 
             InitPictureBox();
         }
@@ -65,8 +69,9 @@ namespace CgaLab.Presentation
                 transformator.Width = Size.Width;
             }
 
-            phongBitmapDrawer = new PhongBitmapDrawer(Size.Width, Size.Height);
+            //phongBitmapDrawer = new PhongBitmapDrawer(Size.Width, Size.Height);
             //lambertBitmapDrawer = new LambertBitmapDrawer(Size.Width, Size.Height);
+            textureBitmapDrawer = new TextureBitmapDrawer(Size.Width, Size.Height);
         }
 
         private async void FormACG_KeyDown(object sender, KeyEventArgs e)
@@ -79,8 +84,31 @@ namespace CgaLab.Presentation
                 }
                 ObjParser parser = new ObjParser();
                 string filename = ModelOpenDialog.FileName;
+                string directory = Path.GetDirectoryName(filename);
                 ObjModel objModel = await parser.ParseAsync(filename);
                 model = new WatchModel(objModel);
+
+                string path = Directory.EnumerateFiles(directory, "Albedo Map" + ".*").FirstOrDefault();
+                if (File.Exists(path))
+                {
+                    ExtendedBitmap diffuseTexture = new(path);
+                    model.DiffuseTexture = diffuseTexture;
+                }
+
+                path = Directory.EnumerateFiles(directory, "Normal Map" + ".*").FirstOrDefault();
+                if (File.Exists(path))
+                {
+                    ExtendedBitmap normalTexture = new(path);
+                    model.NormalsTexture = normalTexture;
+                }
+
+                path = Directory.EnumerateFiles(directory, "Specular Map" + ".*").FirstOrDefault();
+                if (File.Exists(path))
+                {
+                    ExtendedBitmap specularTexture = new(path);
+                    model.SpecularTexture = specularTexture;
+                }
+
                 DrawTimer.Start();
             }
         }
@@ -88,8 +116,14 @@ namespace CgaLab.Presentation
         private void DrawTimer_Tick(object sender, EventArgs e)
         {
             points = transformator.Transform(cameraManipulator.Camera, model);
-            ModelPictureBox.Image = phongBitmapDrawer.GetBitmap(points, model, lightManipulator.LightSource, cameraManipulator.Camera.Eye);
+            //ModelPictureBox.Image = phongBitmapDrawer.GetBitmap(points, model, lightManipulator.LightSource, cameraManipulator.Camera.Eye);
             //ModelPictureBox.Image = lambertBitmapDrawer.GetBitmap(points, model, lightManipulator.LightSource);
+            ModelPictureBox.Image = textureBitmapDrawer.GetBitmap(
+                points, 
+                model, 
+                lightManipulator.LightSource, 
+                cameraManipulator.Camera.Eye
+            );
         }
 
         private void ModelPictureBox_MouseDown(object sender, MouseEventArgs e)
